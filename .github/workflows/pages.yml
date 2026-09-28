@@ -13,23 +13,71 @@ permissions:
 
 concurrency:
   group: github-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: github.repository == 'kyusieun/fruit-cutline-play' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Check out generated build
+      - name: Check out deployment configuration
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+          # 비-cone 패턴으로 이전 root PCK/wasm을 최초 checkout부터 제외한다.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/
+            /deploy.json
 
-      - name: Stage site files
+      - name: Select deployment input
+        id: input
+        shell: bash
         run: |
-          mkdir site
-          cp index* site/
-          touch site/.nojekyll
+          if test -f deploy.json; then
+            echo 'mode=artifact' >> "$GITHUB_OUTPUT"
+          else
+            echo 'mode=legacy' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Receive verified upstream artifact
+        if: steps.input.outputs.mode == 'artifact'
+        env:
+          GH_TOKEN: ${{ secrets.WEB_ARTIFACT_READ_TOKEN }}
+        run: python3 .github/scripts/pages_artifact.py fetch deploy.json site
+
+      # 명세가 아직 없는 마이그레이션 첫 단계만 기존 빌드를 배포한다.
+      # 명세가 있으면 오류/만료/권한 실패를 legacy로 우회하지 않는다.
+      - name: Check out legacy Web files
+        if: steps.input.outputs.mode == 'legacy'
+        uses: actions/checkout@v5
+        with:
+          path: legacy
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /index*
+
+      - name: Stage legacy site
+        if: steps.input.outputs.mode == 'legacy'
+        run: python3 .github/scripts/pages_artifact.py legacy legacy site
+
+      - name: Report artifact validation before activation
+        if: steps.input.outputs.mode == 'artifact' && vars.PAGES_ARTIFACT_DEPLOY_ENABLED != 'true'
+        run: |
+          echo '### artifact 검증 완료 · 아직 배포하지 않음' >> "$GITHUB_STEP_SUMMARY"
+          echo '검토 후 PAGES_ARTIFACT_DEPLOY_ENABLED=true를 설정하고 이 workflow를 다시 실행하세요.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Refuse deployment from an outdated main revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=$(gh api repos/kyusieun/fruit-cutline-play/git/ref/heads/main --jq .object.sha)
+          test "$current" = "$GITHUB_SHA"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -38,7 +86,9 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: site
+          retention-days: 1
 
       - name: Deploy Pages
         id: deployment
+        if: steps.input.outputs.mode == 'legacy' || vars.PAGES_ARTIFACT_DEPLOY_ENABLED == 'true'
         uses: actions/deploy-pages@v4

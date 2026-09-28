@@ -1,0 +1,2 @@
+# 빌드는 Actions artifact에 보관한다. 이미 추적 중인 파일은 별도 일반 commit으로 제거한다.
+/index*
