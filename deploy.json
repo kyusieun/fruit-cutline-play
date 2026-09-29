@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "source_repository": "kyusieun/fruit-cutline",
-  "source_sha": "975c34780b633046d9a8c1ee3e127d595e30b349",
-  "run_id": 36414367710,
+  "source_sha": "8fd7f15643846efdda19d31f23f8810432f7775e",
+  "run_id": 36565869803,
   "run_attempt": 1,
-  "artifact_id": 10966852583,
-  "artifact_digest": "sha256:f366755945056205ac610871780722431be2550a5b3bec903706e552ce3d8db7",
+  "artifact_id": 11031678796,
+  "artifact_digest": "sha256:1f87ee3cad4d5851b18ea1f7b18c377d0a32c09caa4d872ace2aa6ab082626dc",
   "files": {
     "index.apple-touch-icon.png": {
       "size": 11952,
@@ -21,7 +21,7 @@
     },
     "index.html": {
       "size": 5441,
-      "sha256": "157169b29fd6e7fb1087136a5a0ebf6d9bf7faf5a2d37b5fff2b353e73c076c7"
+      "sha256": "097ba7ac5957c5201294a3980848f51517343f04373e95508b52a0f83033fc70"
     },
     "index.icon.png": {
       "size": 5702,
@@ -32,8 +32,8 @@
       "sha256": "e3f56ee40e6f84371053db06692cfac15e2c8659547b11c6b2dfa1996dabd981"
     },
     "index.pck": {
-      "size": 74942704,
-      "sha256": "726111718b876f484afc3f5d2b0821f6c6db6c0bf4722253f7fecb93084b230b"
+      "size": 76288980,
+      "sha256": "d8b7976d0ee33785e99ab17c7c02985933c7a5958187aa0cf6a2b8947b2c07ef"
     },
     "index.png": {
       "size": 21443,
@@ -44,5 +44,5 @@
       "sha256": "99962b29677e42f3ba0258bd90fdc52ad90295954c4473e816ad02cfe5ff1d4f"
     }
   },
-  "artifact_name": "fruit-cutline-web-36414367710-1"
+  "artifact_name": "fruit-cutline-web-36565869803-1"
 }
